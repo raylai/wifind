@@ -65,7 +65,8 @@ sub write_hostname_if
 	print TMP $tail;
 	close TMP;
 
-	rename $hostname_if, "$hostname_if.orig" or die "rename failed: $!";
+	unlink "$hostname_if.orig" or die "unlink failed: $!";
+	link $hostname_if, "$hostname_if.orig" or die "link failed: $!";
 	rename $tmp, $hostname_if or die "rename failed: $!";
 
 	warn "found $ap->{nwid}, wrote $hostname_if\n";
