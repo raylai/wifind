@@ -68,7 +68,7 @@ sub write_hostname_if
 	rename $hostname_if, "$hostname_if.orig" or die "rename failed: $!";
 	rename $tmp, $hostname_if or die "rename failed: $!";
 
-	print STDERR "found $ap->{nwid}, wrote $hostname_if\n";
+	warn "found $ap->{nwid}, wrote $hostname_if\n";
 }
 
 # we only need rpath to read config file
@@ -93,7 +93,7 @@ for (<L>) {
 
 		# reject hostile characters
 		if ($nwid =~ /["\\\$]/) {
-			print STDERR "malformed nwid: $nwid\n";
+			warn "malformed nwid: $nwid\n";
 			next;
 		}
 		# check for recognized access points
@@ -106,7 +106,7 @@ for (<L>) {
 
 			# reject hostile characters
 			if ($ap->{wpakey} =~ /["\\\$]/) {
-				print STDERR "malformed wpakey\n";
+				warn "malformed wpakey\n";
 				next;
 			}
 
@@ -117,5 +117,5 @@ for (<L>) {
 	}
 }
 
-print STDERR "no network found\n";
+warn "no network found\n";
 exit 1;
