@@ -72,7 +72,6 @@ sub write_hostname_if
 	warn "found $ap->{nwid}, wrote $hostname_if\n";
 }
 
-# we only need rpath to read config file
 pledge(qw( rpath wpath cpath proc exec )) || die "Unable to pledge: $!";
 
 my $conf = decode_json(slurp '/etc/wifind.conf');
