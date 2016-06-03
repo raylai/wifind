@@ -1,0 +1,66 @@
+.\"	$OpenBSD$
+.\"
+.\" Written by Ray Lai <ray@raylai.com>.
+.\" This is free and unencumbered software released into the public domain.
+.\"
+.\" Anyone is free to copy, modify, publish, use, compile, sell, or
+.\" distribute this software, either in source code form or as a compiled
+.\" binary, for any purpose, commercial or non-commercial, and by any
+.\" means.
+.\"
+.\" In jurisdictions that recognize copyright laws, the author or authors
+.\" of this software dedicate any and all copyright interest in the
+.\" software to the public domain. We make this dedication for the benefit
+.\" of the public at large and to the detriment of our heirs and
+.\" successors. We intend this dedication to be an overt act of
+.\" relinquishment in perpetuity of all present and future rights to this
+.\" software under copyright law.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+.\" EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+.\" IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+.\" OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+.\" ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+.\" OTHER DEALINGS IN THE SOFTWARE.
+.\"
+.\" For more information, please refer to <http://unlicense.org>
+.\"
+.Dd $Mdocdate$
+.Dt wifind 8
+.Os
+.Sh NAME
+.Nm wifind
+.Nd connect to known wifi networks
+.Sh SYNOPSIS
+.Nm wifind
+.Sh DESCRIPTION
+The
+.Nm
+utility scans for the strongest recognized wifi networks,
+writes an appropriate
+.Xr hostname.if 5
+file,
+and starts the network with
+.Xr /etc/netstart 8 .
+.Sh FILES
+.Pa /etc/wifind.conf
+.Sh EXIT STATUS
+Exits 0 on success, 1 if no network found.
+.Sh EXAMPLES
+Add the following line to your /etc/apm/resume:
+.Pp
+wifind
+.Sh SEE ALSO
+.Xr hostname.if 5
+.Sh HISTORY
+I got really tired of editing
+.Xr hostname.if 5
+every time I moved my laptop.
+.Sh AUTHORS
+Ray Lai <ray@raylai.com>
+.Sh CAVEATS
+Please avoid nwid or wpakey with quotes, dollar signs, or backslashes.
+.Pp
+I'm sorry if you dislike Perl, but it comes stock with
+.Ox .

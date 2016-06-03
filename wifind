@@ -1,0 +1,121 @@
+#!/usr/bin/env perl
+# Written by Ray Lai <ray@raylai.com>.
+# This is free and unencumbered software released into the public domain.
+#
+# Anyone is free to copy, modify, publish, use, compile, sell, or
+# distribute this software, either in source code form or as a compiled
+# binary, for any purpose, commercial or non-commercial, and by any
+# means.
+#
+# In jurisdictions that recognize copyright laws, the author or authors
+# of this software dedicate any and all copyright interest in the
+# software to the public domain. We make this dedication for the benefit
+# of the public at large and to the detriment of our heirs and
+# successors. We intend this dedication to be an overt act of
+# relinquishment in perpetuity of all present and future rights to this
+# software under copyright law.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+# For more information, please refer to <http://unlicense.org>
+
+use JSON::PP;
+use OpenBSD::Pledge;
+use strict;
+use warnings;
+
+my $ifconfig = '/sbin/ifconfig';
+my $tmp = "/etc/wifind.tmp";
+my $head = "lladdr random\n" .
+    "-chan -bssid -wpakey\n";
+my $tail = "dhcp\n";
+
+sub slurp
+{
+	my $file = shift;
+	open F, '<', $file or die "Can't read $file: $!";
+	local $/;	# enable slurp mode, locally.
+	my $data = <F>;
+	close F;
+	$data;
+}
+
+sub write_hostname_if
+{
+	my ($if, $ap) = @_;
+	my $hostname_if = "/etc/hostname.$if";
+
+	umask 077;
+	open TMP, '>', $tmp or die "Unable to open $tmp: $!";
+
+	print TMP $head;
+	# set nwid, bssid, chan
+	printf TMP 'nwid "%s"', $ap->{nwid};
+	printf TMP ' bssid "%s"', $ap->{bssid} if $ap->{bssid};
+	printf TMP ' chan "%s"', $ap->{chan} if $ap->{chan};
+	print TMP "\n";
+	# wpa needs to be set after nwid
+	printf TMP "wpakey \"%s\"\n", $ap->{wpakey} if $ap->{wpakey};
+	print TMP $tail;
+	close TMP;
+
+	rename $hostname_if, "$hostname_if.orig" or die "rename failed: $!";
+	rename $tmp, $hostname_if or die "rename failed: $!";
+
+	print STDERR "found $ap->{nwid}, wrote $hostname_if\n";
+}
+
+# we only need rpath to read config file
+pledge(qw( rpath wpath cpath proc exec )) || die "Unable to pledge: $!";
+
+my $conf = decode_json(slurp '/etc/wifind.conf');
+my $wlan = $conf->{wlan};
+my $if = $conf->{if};
+
+# initial scan
+open L, '-|', $ifconfig, $if, 'scan' or die "Can't open pipe: $!";
+
+pledge(qw( rpath wpath cpath exec )) || die "Unable to pledge: $!";
+for (<L>) {
+	if (/^\s+nwid (.+) chan (\d+) bssid ([0-9a-f:]+) (-\d+)dBm ([\w-]+) ([\w,-]+)\s*$/) {
+		my ($nwid, $chan, $bssid, $dbm, $mystery, $csv) =
+		    ($1, $2, $3, $4, $5, $6);
+		my %cap = map { $_ => 1 } split(/,/, $csv);
+
+		# remove quotes from nwid, if any
+		$nwid =~ s/^"(.*)"$/$1/;
+
+		# reject hostile characters
+		if ($nwid =~ /["\\\$]/) {
+			print STDERR "malformed nwid: $nwid\n";
+			next;
+		}
+		# check for recognized access points
+		# i assume we will match the strongest signal first
+		for my $ap (@$wlan) {
+			next if $ap->{nwid} ne $nwid ||
+			    ($ap->{bssid} && $ap->{bssid} ne $bssid) ||
+			    ($ap->{chan} && $ap->{chan} ne $chan) ||
+			    ($ap->{wpakey} && !$cap{wpa2});
+
+			# reject hostile characters
+			if ($ap->{wpakey} =~ /["\\\$]/) {
+				print STDERR "malformed wpakey\n";
+				next;
+			}
+
+			write_hostname_if $if, $ap;
+			exec '/bin/sh', '/etc/netstart', $if
+			    or die "exec failed: $!";
+		}
+	}
+}
+
+print STDERR "no network found\n";
+exit 1;

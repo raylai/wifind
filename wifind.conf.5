@@ -1,0 +1,75 @@
+.\"	$OpenBSD$
+.\"
+.\" Written by Ray Lai <ray@raylai.com>.
+.\" This is free and unencumbered software released into the public domain.
+.\"
+.\" Anyone is free to copy, modify, publish, use, compile, sell, or
+.\" distribute this software, either in source code form or as a compiled
+.\" binary, for any purpose, commercial or non-commercial, and by any
+.\" means.
+.\"
+.\" In jurisdictions that recognize copyright laws, the author or authors
+.\" of this software dedicate any and all copyright interest in the
+.\" software to the public domain. We make this dedication for the benefit
+.\" of the public at large and to the detriment of our heirs and
+.\" successors. We intend this dedication to be an overt act of
+.\" relinquishment in perpetuity of all present and future rights to this
+.\" software under copyright law.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+.\" EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+.\" IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+.\" OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+.\" ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+.\" OTHER DEALINGS IN THE SOFTWARE.
+.\"
+.\" For more information, please refer to <http://unlicense.org>
+.\"
+.Dd $Mdocdate$
+.Dt WIFIND.CONF 5
+.Os
+.Sh NAME
+.Nm wifind.conf
+.Nd wifind configuration file
+.Sh SYNOPSIS
+.Nm /etc/wifind.conf
+.Sh DESCRIPTION
+The
+.Nm
+file contains details of wifi networks to connect to
+(for example, nwid, bssid, chan, wpakey).
+It also specifies the interface with which to scan and connect.
+.Sh EXAMPLES
+.Bd -literal -offset indent
+{
+   "if" : "iwn0",
+   "wlan" : [
+      {
+         "nwid" : "openwireless.org"
+      },
+      {
+         "nwid" : "Corporate Network",
+         "bssid" : "f8:03:0d:72:9e:f0",
+         "chan" : "1",
+         "wpakey" : "j839fzjieJrRjf"
+      }
+   ]
+}
+.Ed
+.Sh SEE ALSO
+.Xr wifind 8
+.Sh HISTORY
+Ray was really tired of editing
+.Xr hostname.if 5
+and running
+.Xr netstart 8
+every time he resumed my laptop.
+.Sh AUTHORS
+Ray Lai <ray@raylai.com> wrote
+.Xr wifind 8 ,
+but he did not invent JSON.
+.Sh CAVEATS
+Please avoid nwid or wpakey with quotes, dollar signs, or backslashes.
+.Pp
+I'm sorry if you dislike JSON, but it comes stock with Perl.
