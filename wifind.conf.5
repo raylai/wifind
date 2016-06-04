@@ -38,7 +38,7 @@
 The
 .Nm
 file contains details of wifi networks to connect to
-(for example, nwid, bssid, chan, wpakey).
+(for example, nwid, bssid, chan, lladdr, wpakey).
 It also specifies the interface with which to scan and connect.
 .Sh EXAMPLES
 .Bd -literal -offset indent
@@ -46,12 +46,14 @@ It also specifies the interface with which to scan and connect.
    "if" : "iwn0",
    "wlan" : [
       {
-         "nwid" : "openwireless.org"
+         "nwid" : "openwireless.org",
+         "lladdr" : "random"
       },
       {
          "nwid" : "Corporate Network",
          "bssid" : "f8:03:0d:72:9e:f0",
          "chan" : "1",
+         "lladdr" : "04:66:25:60:10:45",
          "wpakey" : "j839fzjieJrRjf"
       }
    ]
