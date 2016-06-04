@@ -51,7 +51,6 @@ sub write_hostname_if
 	my $hostname_if = "/etc/hostname.$if";
 	my $hostname_orig = "$hostname_if.orig";
 
-	#umask 077;
 	my ($tmp_fh, $tmp_file) = tempfile('wifind.XXXXXXXXXX', DIR => '/etc');
 	print {$tmp_fh} $head;
 	# set nwid, bssid, chan
