@@ -50,6 +50,7 @@ sub write_hostname_if
 {
 	my ($if, $ap) = @_;
 	my $hostname_if = "/etc/hostname.$if";
+	my $hostname_orig = "$hostname_if.orig";
 
 	#umask 077;
 	my ($tmp_fh, $tmp_file) = tempfile('wifind.XXXXXXXXXX', DIR => '/etc');
@@ -64,7 +65,9 @@ sub write_hostname_if
 	print {$tmp_fh} $tail;
 	close $tmp_fh;
 
-	unlink "$hostname_if.orig" or die "unlink failed: $!";
+	if (-e $hostname_orig) {
+		unlink "$hostname_if.orig" or die "unlink failed: $!";
+	}
 	link $hostname_if, "$hostname_if.orig" or die "link failed: $!";
 	rename $tmp_file, $hostname_if or die "rename failed: $!";
 
