@@ -32,8 +32,7 @@ use strict;
 use warnings;
 
 my $ifconfig = '/sbin/ifconfig';
-my $head = "lladdr random\n" .
-    "-chan -bssid -wpakey\n";
+my $head = "-chan -bssid -wpakey\n";
 my $tail = "dhcp\n";
 
 sub slurp
