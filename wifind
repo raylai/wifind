@@ -78,14 +78,15 @@ pledge(qw( rpath wpath cpath fattr flock proc exec )) || die "Unable to pledge: 
 my $conf = decode_json(slurp '/etc/wifind.conf');
 my $wlan = $conf->{wlan};
 my $if = $conf->{if};
+$global_opts = $conf->{global_opts} if $conf->{global_opts};
 
 # initial scan
 open L, '-|', $ifconfig, $if, 'scan' or die "Can't open pipe: $!";
 
 pledge(qw( rpath wpath cpath fattr flock exec )) || die "Unable to pledge: $!";
 for (<L>) {
-	if (/^\s+nwid (.+) chan (\d+) bssid ([0-9a-f:]+) (-\d+)dBm ([\w-]+) ([\w,-]+)\s*$/) {
-		my ($nwid, $chan, $bssid, $dbm, $mystery, $csv) =
+	if (/^\s+nwid (.+) chan (\d+) bssid ([0-9a-f:]+) (\d+)% ([\w-]+) ([\w,-]+)\s*$/) {
+		my ($nwid, $chan, $bssid, $quality, $mystery, $csv) =
 		    ($1, $2, $3, $4, $5, $6);
 		my %cap = map { $_ => 1 } split(/,/, $csv);
 
