@@ -33,6 +33,7 @@ use warnings;
 
 my $ifconfig = '/sbin/ifconfig';
 my $head = "-chan -bssid -wpakey\n";
+my $global_opts = "";
 my $tail = "dhcp\n";
 
 sub slurp
@@ -53,6 +54,7 @@ sub write_hostname_if
 
 	my ($tmp_fh, $tmp_file) = tempfile('wifind.XXXXXXXXXX', DIR => '/etc');
 	print {$tmp_fh} $head;
+	print {$tmp_fh} $global_opts;
 	# set nwid, bssid, chan, lladdr
 	printf {$tmp_fh} 'nwid "%s"', $ap->{nwid};
 	printf {$tmp_fh} ' bssid "%s"', $ap->{bssid} if $ap->{bssid};
