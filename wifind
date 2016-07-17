@@ -58,6 +58,7 @@ sub write_hostname_if
 	printf {$tmp_fh} ' bssid "%s"', $ap->{bssid} if $ap->{bssid};
 	printf {$tmp_fh} ' chan "%s"', $ap->{chan} if $ap->{chan};
 	printf {$tmp_fh} ' lladdr "%s"', $ap->{lladdr} if $ap->{lladdr};
+	printf {$tmp_fh} ' media %s', $ap->{media} if $ap->{media};
 	print {$tmp_fh} "\n";
 	# wpa needs to be set after nwid
 	printf {$tmp_fh} "wpakey \"%s\"\n", $ap->{wpakey} if $ap->{wpakey};
