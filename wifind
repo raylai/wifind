@@ -67,10 +67,15 @@ sub write_hostname_if
 	print {$tmp_fh} $tail;
 	close $tmp_fh;
 
-	if (-e $hostname_orig) {
-		unlink "$hostname_if.orig" or die "unlink failed: $!";
+	# backup hostname.if before overwriting
+	if (-e $hostname_if) {
+		if (-e $hostname_orig) {
+			unlink "$hostname_if.orig" or die "unlink failed: $!";
+		}
+		link $hostname_if, "$hostname_if.orig" or die "link failed: $!";
 	}
-	link $hostname_if, "$hostname_if.orig" or die "link failed: $!";
+
+	# (over)write hostname.if
 	rename $tmp_file, $hostname_if or die "rename failed: $!";
 
 	warn "found $ap->{nwid}, wrote $hostname_if\n";
