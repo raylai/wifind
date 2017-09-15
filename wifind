@@ -115,7 +115,7 @@ for (<L>) {
 			    ($ap->{wpakey} && !$cap{wpa2});
 
 			# reject hostile characters
-			if ($ap->{wpakey} =~ /["\\\$]/) {
+			if ($ap->{wpakey} && $ap->{wpakey} =~ /["\\\$]/) {
 				warn "malformed wpakey\n";
 				next;
 			}
