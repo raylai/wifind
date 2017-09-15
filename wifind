@@ -33,6 +33,7 @@ use warnings;
 
 my $ifconfig = '/sbin/ifconfig';
 my $head = "-chan -bssid -wpakey\n";
+my $global_opts = "";
 my $tail = "dhcp\n";
 
 sub slurp
@@ -53,11 +54,13 @@ sub write_hostname_if
 
 	my ($tmp_fh, $tmp_file) = tempfile('wifind.XXXXXXXXXX', DIR => '/etc');
 	print {$tmp_fh} $head;
+	print {$tmp_fh} $global_opts;
 	# set nwid, bssid, chan, lladdr
 	printf {$tmp_fh} 'nwid "%s"', $ap->{nwid};
 	printf {$tmp_fh} ' bssid "%s"', $ap->{bssid} if $ap->{bssid};
 	printf {$tmp_fh} ' chan "%s"', $ap->{chan} if $ap->{chan};
 	printf {$tmp_fh} ' lladdr "%s"', $ap->{lladdr} if $ap->{lladdr};
+	printf {$tmp_fh} ' media %s', $ap->{media} if $ap->{media};
 	print {$tmp_fh} "\n";
 	# wpa needs to be set after nwid
 	printf {$tmp_fh} "wpakey \"%s\"\n", $ap->{wpakey} if $ap->{wpakey};
@@ -78,14 +81,15 @@ pledge(qw( rpath wpath cpath fattr flock proc exec )) || die "Unable to pledge: 
 my $conf = decode_json(slurp '/etc/wifind.conf');
 my $wlan = $conf->{wlan};
 my $if = $conf->{if};
+$global_opts = $conf->{global_opts} if $conf->{global_opts};
 
 # initial scan
 open L, '-|', $ifconfig, $if, 'scan' or die "Can't open pipe: $!";
 
 pledge(qw( rpath wpath cpath fattr flock exec )) || die "Unable to pledge: $!";
 for (<L>) {
-	if (/^\s+nwid (.+) chan (\d+) bssid ([0-9a-f:]+) (-\d+)dBm ([\w-]+) ([\w,-]+)\s*$/) {
-		my ($nwid, $chan, $bssid, $dbm, $mystery, $csv) =
+	if (/^\s+nwid (.+) chan (\d+) bssid ([0-9a-f:]+) (?:-)?(\d+)(?:(?:dBm)|(?:%)) ([\w-]+) ([\w,-]+)\s*$/) {
+		my ($nwid, $chan, $bssid, $quality, $mystery, $csv) =
 		    ($1, $2, $3, $4, $5, $6);
 		my %cap = map { $_ => 1 } split(/,/, $csv);
 
