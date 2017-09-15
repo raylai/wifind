@@ -120,7 +120,7 @@ for (<L>) {
 				warn "malformed wpakey\n";
 				next;
 			}
-			if ($ap->description && $ap->{description} =~ /["\\\$]/) {
+			if ($ap->{description} && $ap->{description} =~ /["\\\$]/) {
 				warn "malformed description\n";
 				next;
 			}
