@@ -61,6 +61,7 @@ sub write_hostname_if
 	printf {$tmp_fh} ' chan "%s"', $ap->{chan} if $ap->{chan};
 	printf {$tmp_fh} ' lladdr "%s"', $ap->{lladdr} if $ap->{lladdr};
 	printf {$tmp_fh} ' media %s', $ap->{media} if $ap->{media};
+	printf {$tmp_fh} ' description "%s"', $ap->{description} if $ap->{description};
 	print {$tmp_fh} "\n";
 	# wpa needs to be set after nwid
 	printf {$tmp_fh} "wpakey \"%s\"\n", $ap->{wpakey} if $ap->{wpakey};
@@ -117,6 +118,10 @@ for (<L>) {
 			# reject hostile characters
 			if ($ap->{wpakey} && $ap->{wpakey} =~ /["\\\$]/) {
 				warn "malformed wpakey\n";
+				next;
+			}
+			if ($ap->description && $ap->{description} =~ /["\\\$]/) {
+				warn "malformed description\n";
 				next;
 			}
 
